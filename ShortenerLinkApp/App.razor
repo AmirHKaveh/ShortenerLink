@@ -1,6 +1,4 @@
-﻿<head>
-    <RadzenTheme Theme="material" @rendermode="RenderMode.InteractiveAuto" />
-</head>
+﻿
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -13,5 +11,4 @@
         </LayoutView>
     </NotFound>
 </Router>
-
 <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
