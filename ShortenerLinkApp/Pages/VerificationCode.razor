@@ -1,0 +1,148 @@
+﻿@page "/verification"
+@inject HttpClient Http
+@using ShortenerLinkApp.ViewModels
+@layout EmptyLayout;
+<PageTitle>Verification Code</PageTitle>
+<style>
+    .otp-field {
+        flex-direction: row;
+        column-gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .otp-field input {
+            height: 45px;
+            width: 42px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1.125rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+            .otp-field input:focus {
+                box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+            }
+
+            .otp-field input::-webkit-inner-spin-button,
+            .otp-field input::-webkit-outer-spin-button {
+                display: none;
+            }
+
+    .resend {
+        font-size: 12px;
+    }
+
+    .footer {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        color: black;
+        font-size: 12px;
+        text-align: right;
+        font-family: monospace;
+    }
+
+        .footer a {
+            color: black;
+            text-decoration: none;
+        }
+
+</style>
+
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-xl-10">
+                <div class="card shadow p-3 mb-5 bg-white rounded">
+                    <div class="row g-0">
+                        <div class="col-md-8 col-lg-6 d-none d-md-block">
+                            <img src="/images/login.jpg"
+                                 alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
+                        </div>
+                        <div class="col-md-4 col-lg-6 d-flex align-items-center">
+                            <div class="card-body p-4 p-lg-5 text-black">
+                              
+                                <EditForm Model="model" OnSubmit="SubmitForm">
+                                    <DataAnnotationsValidator />
+
+                                    <div class="row justify-content-center">
+                                        <div class="col-12 col-md-6 col-lg-4" style="min-width: 500px;">
+                                            <div class="card bg-white mb-5 mt-5 border-0" style="box-shadow: 0 12px 15px rgba(0, 0, 0, 0.02);">
+                                                <div class="card-body p-5 text-center">
+                                                    <h4>Verify</h4>
+                                                    <p>Your code was sent to you via SMS</p>
+
+                                                    <div class="otp-field mb-4">
+                                                        <input type="number" />
+                                                        <input type="number" disabled />
+                                                        <input type="number" disabled />
+                                                        <input type="number" disabled />
+                                                        <input type="number" disabled />
+                                                        <input type="number" disabled />
+                                                    </div>
+
+                                                    <button class="btn btn-primary mb-3" id="btnVerify">
+                                                        Verify
+                                                    </button>
+
+                                                    <p class="resend text-muted mb-0">
+                                                        Didn't receive code? <a href="">Request again</a>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </EditForm>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="/js/otp.js"></script>
+
+@code {
+    @inject ISnackbar Snackbar
+    private LoginViewModel model = new LoginViewModel();
+    private OTPViewModel OTPViewModel = new OTPViewModel();
+
+    private async Task SubmitForm()
+    {
+
+        // Assuming the API is hosted at this URL
+        var apiUrl = "https://localhost:7020/api/authenticate/signIn";
+
+        var response = await Http.PostAsJsonAsync(apiUrl, model);
+        Console.WriteLine(response);
+        if (response.IsSuccessStatusCode)
+        {
+            ShowVariant("The security code has been successfully sent to you.", Severity.Success);
+            model = new LoginViewModel(); // Reset the form
+
+            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+        }
+        else
+        {
+            ShowVariant("An error has occurred.", Severity.Error);
+
+            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+        }
+    }
+
+    void ShowVariant(string message, Severity severity)
+    {
+        Snackbar.Configuration.MaxDisplayedSnackbars = 10;
+        Snackbar.Add($"{message}", severity, c => c.SnackbarVariant = Variant.Filled);
+    }
+
+
+
+
+}

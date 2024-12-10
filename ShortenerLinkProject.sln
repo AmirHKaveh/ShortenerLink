@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35431.28
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortenerLinkAPI", "ShortenerLinkAPI\ShortenerLinkAPI.csproj", "{7D510610-BFFC-4529-961E-66C17078750C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortenerLinkApp", "ShortenerLinkApp\ShortenerLinkApp.csproj", "{B668B20F-9E0D-470E-9B5A-105612055551}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortenerLinkApp", "ShortenerLinkApp\ShortenerLinkApp.csproj", "{B668B20F-9E0D-470E-9B5A-105612055551}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
