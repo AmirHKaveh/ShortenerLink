@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShortenerLinkAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c4fddd74485aed93819f8f1874015aefa9791370")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d76b1cbd2dc2e59bdd5cbb6c5ec2a89ddcd5715f")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShortenerLinkAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShortenerLinkAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
