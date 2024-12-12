@@ -8,7 +8,7 @@ using ShortLinkGenerator.Data;
 
 #nullable disable
 
-namespace ShortLinkGenerator.Migrations
+namespace ShortenerLinkAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -236,6 +236,14 @@ namespace ShortLinkGenerator.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("OriginalUrl")
                         .IsRequired()
