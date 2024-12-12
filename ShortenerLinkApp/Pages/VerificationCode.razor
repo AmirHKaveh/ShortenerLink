@@ -16,7 +16,7 @@
                     <div class="row g-0">
                         <div class="col-md-8 col-lg-6 d-none d-md-block">
                             <img src="/images/login.jpg"
-                            alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
+                                 alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
                         </div>
                         <div class="col-md-4 col-lg-6 d-flex align-items-center">
                             <div class="card-body p-4 p-lg-5 text-black">
@@ -55,7 +55,7 @@
 
                                                     <p>OTP expires in: <strong class="text-danger" id="timer">@_timeRemaining</strong> seconds</p>
                                                     <p class="resend text-muted mb-0">
-                                                        Didn't receive code? <button @onclick="StartTimer" type="button" disabled="@_isResendDisabled">Start</button>
+                                                        Didn't receive code? <button @onclick="ResendOTP" type="button" disabled="@_isResendDisabled" class="btn btn-outline-success" style="border:0">Resend</button>
                                                     </p>
                                                 </div>
                                             </div>
@@ -83,6 +83,7 @@
     private System.Timers.Timer _timer;
     private string FullOTP => $"{otp1}{otp2}{otp3}{otp4}{otp5}";
     private OTPViewModel OTPViewModel = new OTPViewModel();
+
 
     protected override void OnInitialized()
     {
@@ -117,6 +118,33 @@
         }
     }
 
+    private async Task ResendOTP()
+    {
+        _processing = true;
+        var apiUrl = $"{Const.ApiBaseUrl}/authenticate/signIn";
+
+        var model = new LoginViewModel()
+            {
+                Mobile = SharedDataService.MobileNumber
+            };
+        var response = await Http.PostAsJsonAsync(apiUrl, model);
+        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+
+        _processing = false;
+        if (response.IsSuccessStatusCode)
+        {
+            _isResendDisabled = true;
+            _timeRemaining = _timeoutDuration;
+            StartTimer();
+            SnackbarService.Add($"The security code again successfully sent to you.", Severity.Success);
+            model = new LoginViewModel(); // Reset the form
+        }
+        else
+        {
+            SnackbarService.Add("An error has occurred.", Severity.Error);
+        }
+    }
+
     private void StartTimer()
     {
         _timer = new System.Timers.Timer(1000);
@@ -145,7 +173,7 @@
         _timer.Dispose();
         _isResendDisabled = false;
     }
-    
+
     public void Dispose()
     {
         StopTimer();
