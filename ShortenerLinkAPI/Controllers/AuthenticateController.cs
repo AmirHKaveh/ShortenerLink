@@ -59,21 +59,13 @@ namespace ShortLinkGenerator.Controllers
         {
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == request.Mobile);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == request.Mobile && x.SecurityCode == request.Code && x.SecurityCodeExpire.HasValue && x.SecurityCodeExpire.Value >= DateTime.Now);
 
             if (user is null)
             {
                 return BadRequest("کاربری یافت نشد");
             }
-            if(user.SecurityCode != request.Code)
-            {
-                return BadRequest("کد وارد شده صحیح نمی باشد !");
-            }
 
-            if(!user.SecurityCodeExpire.HasValue || user.SecurityCodeExpire.Value < DateTime.Now)
-            {
-                return BadRequest("کد وارد شده منقضی شده است !");
-            }
             var token = await _accountService.GenerateToken(user.UserName);
             return Ok(token);
         }

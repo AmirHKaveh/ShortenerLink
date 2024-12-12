@@ -18,12 +18,4 @@ namespace ShortenerLinkApp.ViewModels
         public string Mobile { get; set; }
         public string Code { get; set; }
     }
-    public class OTPSharedDataService
-    {
-        public string MobileNumber { get; set; }
-    }
-    public class LoginResponse
-    {
-        public string token { get; set; }
-    }
 }

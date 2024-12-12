@@ -26,6 +26,7 @@ inputs[0].addEventListener("paste", function (event) {
 
 inputs.forEach((input, index1) => {
     input.addEventListener("keyup", (e) => {
+        debugger;
         const currentInput = input;
         const nextInput = input.nextElementSibling;
         const prevInput = input.previousElementSibling;

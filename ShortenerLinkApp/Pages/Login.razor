@@ -1,8 +1,6 @@
 ﻿@page "/login"
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@inject OTPSharedDataService SharedData
-@inject ISnackbar Snackbar
 @using ShortenerLinkApp.ViewModels
 @layout EmptyLayout;
 <PageTitle>Login</PageTitle>
@@ -45,24 +43,24 @@
 
 
 @code {
-
+    @inject ISnackbar Snackbar
     private LoginViewModel model = new LoginViewModel();
-
+    private OTPViewModel OTPViewModel = new OTPViewModel();
 
     private async Task SubmitForm()
     {
 
         // Assuming the API is hosted at this URL
-        var apiUrl = $"{Const.ApiBaseUrl}/authenticate/signIn";
+        var apiUrl = "https://localhost:7020/api/authenticate/signIn";
 
         var response = await Http.PostAsJsonAsync(apiUrl, model);
-
+        Console.WriteLine(response);
         if (response.IsSuccessStatusCode)
         {
-            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-            SharedData.MobileNumber = model.Mobile;
-            ShowVariant($"The security code has been successfully sent to you.", Severity.Success);
+            ShowVariant("The security code has been successfully sent to you.", Severity.Success);
             model = new LoginViewModel(); // Reset the form
+
+            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
             NavigationManager.NavigateTo("/verification");
         }
         else
