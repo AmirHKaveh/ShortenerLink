@@ -127,19 +127,19 @@
                 Code = FullOTP
             };
         var response = await Http.PostAsJsonAsync(apiUrl, model);
-      
+
+        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
         if (response.IsSuccessStatusCode)
         {
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(response.Content.ReadAsStringAsync().Result);
-            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-            Console.WriteLine(loginResponse.token);
             ShowVariant("Login successfully.", Severity.Success);
             model = new OTPViewModel(); // Reset the form
             NavigationManager.NavigateTo("/");
         }
         else
         {
-            ShowVariant("An error has occurred.", Severity.Error);
+            var loginResponse = JsonSerializer.Deserialize<ApiResponseViewModel>(response.Content.ReadAsStringAsync().Result);
+            ShowVariant(loginResponse.message, Severity.Error);
         }
     }
 

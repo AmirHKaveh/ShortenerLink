@@ -38,7 +38,7 @@ namespace ShortLinkGenerator.Controllers
                 await _userManager.CreateAsync(new ApplicationUser()
                 {
                     Id = Guid.NewGuid().ToString(),
-                    UserName= request.Mobile,
+                    UserName = request.Mobile,
                     SecurityCode = code,
                     SecurityCodeExpire = DateTime.Now.AddMinutes(4)
                 });
@@ -50,7 +50,7 @@ namespace ShortLinkGenerator.Controllers
                 await _userManager.UpdateAsync(user);
             }
 
-            return Ok($"کد امنیتی {code} ارسال شد");
+            return Ok(new ApiOkResponse($"Security Code Send ! {code}"));
         }
 
         [Route("Verify")]
@@ -63,16 +63,16 @@ namespace ShortLinkGenerator.Controllers
 
             if (user is null)
             {
-                return BadRequest("کاربری یافت نشد");
+                return BadRequest(new ApiResponse(400, "Not Found User !"));
             }
-            if(user.SecurityCode != request.Code)
+            if (user.SecurityCode != request.Code)
             {
-                return BadRequest("کد وارد شده صحیح نمی باشد !");
+                return BadRequest(new ApiResponse(400, "Incorrect Security Code !"));
             }
 
-            if(!user.SecurityCodeExpire.HasValue || user.SecurityCodeExpire.Value < DateTime.Now)
+            if (!user.SecurityCodeExpire.HasValue || user.SecurityCodeExpire.Value < DateTime.Now)
             {
-                return BadRequest("کد وارد شده منقضی شده است !");
+                return BadRequest(new ApiResponse(400, "Security Code Expired !"));
             }
             var token = await _accountService.GenerateToken(user.UserName);
             return Ok(token);
