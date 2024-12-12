@@ -2,7 +2,7 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject OTPSharedDataService SharedData
-@inject ISnackbar Snackbar
+@inject ISnackbarService SnackbarService
 @using ShortenerLinkApp.ViewModels
 @layout EmptyLayout;
 <PageTitle>Login</PageTitle>
@@ -56,30 +56,17 @@
         var apiUrl = $"{Const.ApiBaseUrl}/authenticate/signIn";
 
         var response = await Http.PostAsJsonAsync(apiUrl, model);
-
+        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
         if (response.IsSuccessStatusCode)
         {
-            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
             SharedData.MobileNumber = model.Mobile;
-            ShowVariant($"The security code has been successfully sent to you.", Severity.Success);
+            SnackbarService.Add($"The security code has been successfully sent to you.", Severity.Success);
             model = new LoginViewModel(); // Reset the form
             NavigationManager.NavigateTo("/verification");
         }
         else
         {
-            ShowVariant("An error has occurred.", Severity.Error);
-
-            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+            SnackbarService.Add("An error has occurred.", Severity.Error);
         }
     }
-
-    void ShowVariant(string message, Severity severity)
-    {
-        Snackbar.Configuration.MaxDisplayedSnackbars = 10;
-        Snackbar.Add($"{message}", severity, c => c.SnackbarVariant = Variant.Filled);
-    }
-
-
-
-
 }

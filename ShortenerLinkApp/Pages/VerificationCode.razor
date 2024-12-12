@@ -1,9 +1,8 @@
 ﻿@page "/verification"
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@inject ISnackbar Snackbar
 @inject OTPSharedDataService SharedDataService
-@using ShortenerLinkApp.ViewModels
+@inject ISnackbarService SnackbarService
 @layout EmptyLayout;
 <PageTitle>Verification Code</PageTitle>
 <style>
@@ -132,22 +131,18 @@
         if (response.IsSuccessStatusCode)
         {
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(response.Content.ReadAsStringAsync().Result);
-            ShowVariant("Login successfully.", Severity.Success);
+            SnackbarService.Add("Login successfully.", Severity.Success);
             model = new OTPViewModel(); // Reset the form
             NavigationManager.NavigateTo("/");
         }
         else
         {
             var loginResponse = JsonSerializer.Deserialize<ApiResponseViewModel>(response.Content.ReadAsStringAsync().Result);
-            ShowVariant(loginResponse.message, Severity.Error);
+            SnackbarService.Add(loginResponse.message, Severity.Error);
         }
     }
 
-    void ShowVariant(string message, Severity severity)
-    {
-        Snackbar.Configuration.MaxDisplayedSnackbars = 10;
-        Snackbar.Add($"{message}", severity, c => c.SnackbarVariant = Variant.Filled);
-    }
+   
 
 
 
