@@ -1,10 +1,8 @@
-﻿@page "/login"
+﻿@page "/linkGenerator"
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
-@inject OTPSharedDataService SharedData
 @inject ISnackbarService SnackbarService
 @layout EmptyLayout;
-<PageTitle>Login</PageTitle>
+<PageTitle>LinkGenerator</PageTitle>
 
 
 <section class="vh-100">
@@ -21,12 +19,12 @@
                             <div class="card-body p-4 p-lg-5 text-black">
 
 
-                                <EditForm Model="model" OnValidSubmit="SubmitForm">
+                                <EditForm Model="model" OnValidSubmit="GenerateLink">
                                     <DataAnnotationsValidator />
-                                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
+                                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Shortener link</h5>
                                     <div class="form-outline mb-4">
-                                        <InputText id="Mobile" @bind-Value="model.Mobile" class="form-control" placeholder="Enter your mobile" />
-                                        <ValidationMessage For="@(() => model.Mobile)" />
+                                        <InputText id="Url" @bind-Value="model.Url" class="form-control" placeholder="Enter your link" />
+                                        <ValidationMessage For="@(() => model.Url)" />
                                     </div>
                                     <div class="pt-1 mb-4">
                                         <MudButton Disabled="@_processing" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">
@@ -37,7 +35,7 @@
                                             }
                                             else
                                             {
-                                                <MudText>Login</MudText>
+                                                <MudText>Generate</MudText>
                                             }
                                         </MudButton>
                                     </div>
@@ -55,14 +53,13 @@
 
 @code {
 
-    private LoginViewModel model = new LoginViewModel();
+    private ShortLinkRequestDto model = new ShortLinkRequestDto();
     private bool _processing = false;
 
-    private async Task SubmitForm()
+    private async Task GenerateLink()
     {
         _processing = true;
-        // Assuming the API is hosted at this URL
-        var apiUrl = $"{Const.ApiBaseUrl}/authenticate/signIn";
+        var apiUrl = $"{Const.ApiBaseUrl}/shortLink/createShortLink";
 
         var response = await Http.PostAsJsonAsync(apiUrl, model);
         Console.WriteLine(response.Content.ReadAsStringAsync().Result);
@@ -70,10 +67,8 @@
         _processing = false;
         if (response.IsSuccessStatusCode)
         {
-            SharedData.MobileNumber = model.Mobile;
-            SnackbarService.Add($"The security code has been successfully sent to you.", Severity.Success);
-            model = new LoginViewModel(); // Reset the form
-            NavigationManager.NavigateTo("/verification");
+            SnackbarService.Add($"Your link was created successfully..", Severity.Success);
+            model = new ShortLinkRequestDto(); // Reset the form
         }
         else
         {
