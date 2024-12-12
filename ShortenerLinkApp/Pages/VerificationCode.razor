@@ -132,7 +132,7 @@
         {
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(response.Content.ReadAsStringAsync().Result);
             Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-            Console.WriteLine(loginResponse.Token);
+            Console.WriteLine(loginResponse.token);
             ShowVariant("Login successfully.", Severity.Success);
             model = new OTPViewModel(); // Reset the form
             NavigationManager.NavigateTo("/");

@@ -24,6 +24,6 @@ namespace ShortenerLinkApp.ViewModels
     }
     public class LoginResponse
     {
-        public string Token { get; set; }
+        public string token { get; set; }
     }
 }

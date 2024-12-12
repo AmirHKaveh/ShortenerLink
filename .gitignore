@@ -1,5 +1,5 @@
 .vs/
-ShortenerLinkApp/bin/
-ShortenerLinkApp/obj/
-ShortenerLinkAPI/bin/
-ShortenerLinkAPI/obj/
+/ShortenerLinkApp/bin
+/ShortenerLinkApp/obj
+/ShortenerLinkAPI/bin
+/ShortenerLinkAPI/obj
