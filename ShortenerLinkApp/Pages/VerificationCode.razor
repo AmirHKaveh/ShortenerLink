@@ -38,9 +38,17 @@
                                                         <input type="number" disabled @bind="@otp5" />
                                                     </div>
 
-                                                    <button class="btn btn-primary mb-3" id="btnVerify">
-                                                        Verify
-                                                    </button>
+                                                    <MudButton Disabled="@_processing" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mb-3" id="btnVerify">
+                                                        @if (_processing)
+                                                        {
+                                                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                                            <MudText Class="ms-2">Waiting...</MudText>
+                                                        }
+                                                        else
+                                                        {
+                                                            <MudText>Verify</MudText>
+                                                        }
+                                                    </MudButton>
 
                                                     <p class="resend text-muted mb-0">
                                                         Didn't receive code? <a href="">Request again</a>
@@ -64,14 +72,14 @@
 
 @code {
     private string otp1, otp2, otp3, otp4, otp5;
-
+    private bool _processing = false;
 
     private string FullOTP => $"{otp1}{otp2}{otp3}{otp4}{otp5}";
     private OTPViewModel OTPViewModel = new OTPViewModel();
 
     private async Task SubmitOTP()
     {
-
+        _processing = true;
         var apiUrl = $"{Const.ApiBaseUrl}/authenticate/Verify";
         var model = new OTPViewModel()
             {
@@ -81,6 +89,7 @@
         var response = await Http.PostAsJsonAsync(apiUrl, model);
 
         Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+        _processing = false;
         if (response.IsSuccessStatusCode)
         {
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(response.Content.ReadAsStringAsync().Result);
@@ -95,7 +104,7 @@
         }
     }
 
-   
+
 
 
 

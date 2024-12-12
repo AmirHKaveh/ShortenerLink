@@ -3,7 +3,6 @@
 @inject NavigationManager NavigationManager
 @inject OTPSharedDataService SharedData
 @inject ISnackbarService SnackbarService
-@using ShortenerLinkApp.ViewModels
 @layout EmptyLayout;
 <PageTitle>Login</PageTitle>
 
@@ -22,16 +21,25 @@
                             <div class="card-body p-4 p-lg-5 text-black">
 
 
-                                <EditForm Model="model" OnSubmit="SubmitForm">
+                                <EditForm Model="model" OnValidSubmit="SubmitForm">
                                     <DataAnnotationsValidator />
                                     <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
                                     <div class="form-outline mb-4">
-                                        @* <label class="form-label" for="form2Example17">Mobile</label> *@
                                         <InputText id="Mobile" @bind-Value="model.Mobile" class="form-control" placeholder="Enter your mobile" />
                                         <ValidationMessage For="@(() => model.Mobile)" />
                                     </div>
                                     <div class="pt-1 mb-4">
-                                        <button class="btn btn-primary" type="submit">Login</button>
+                                        <MudButton Disabled="@_processing" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">
+                                            @if (_processing)
+                                            {
+                                                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                                <MudText Class="ms-2">Waiting...</MudText>
+                                            }
+                                            else
+                                            {
+                                                <MudText>Login</MudText>
+                                            }
+                                        </MudButton>
                                     </div>
                                 </EditForm>
 
@@ -48,16 +56,18 @@
 @code {
 
     private LoginViewModel model = new LoginViewModel();
-
+    private bool _processing = false;
 
     private async Task SubmitForm()
     {
-
+        _processing = true;
         // Assuming the API is hosted at this URL
         var apiUrl = $"{Const.ApiBaseUrl}/authenticate/signIn";
 
         var response = await Http.PostAsJsonAsync(apiUrl, model);
         Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+
+        _processing = false;
         if (response.IsSuccessStatusCode)
         {
             SharedData.MobileNumber = model.Mobile;
