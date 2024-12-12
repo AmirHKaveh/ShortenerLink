@@ -1,4 +1,5 @@
 ﻿@page "/verification"
+@using System.Timers
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject OTPSharedDataService SharedDataService
@@ -15,7 +16,7 @@
                     <div class="row g-0">
                         <div class="col-md-8 col-lg-6 d-none d-md-block">
                             <img src="/images/login.jpg"
-                                 alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
+                            alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
                         </div>
                         <div class="col-md-4 col-lg-6 d-flex align-items-center">
                             <div class="card-body p-4 p-lg-5 text-black">
@@ -50,8 +51,11 @@
                                                         }
                                                     </MudButton>
 
+
+
+                                                    <p>OTP expires in: <strong class="text-danger" id="timer">@_timeRemaining</strong> seconds</p>
                                                     <p class="resend text-muted mb-0">
-                                                        Didn't receive code? <a href="">Request again</a>
+                                                        Didn't receive code? <button @onclick="StartTimer" type="button" disabled="@_isResendDisabled">Start</button>
                                                     </p>
                                                 </div>
                                             </div>
@@ -73,10 +77,19 @@
 @code {
     private string otp1, otp2, otp3, otp4, otp5;
     private bool _processing = false;
-
+    private int _timeoutDuration = 60; // timeout duration in seconds
+    private int _timeRemaining;
+    private bool _isResendDisabled = false;
+    private System.Timers.Timer _timer;
     private string FullOTP => $"{otp1}{otp2}{otp3}{otp4}{otp5}";
     private OTPViewModel OTPViewModel = new OTPViewModel();
 
+    protected override void OnInitialized()
+    {
+        _isResendDisabled = true;
+        _timeRemaining = _timeoutDuration;
+        StartTimer();
+    }
     private async Task SubmitOTP()
     {
         _processing = true;
@@ -104,7 +117,39 @@
         }
     }
 
+    private void StartTimer()
+    {
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += UpdateCountdown;
+        _timer.AutoReset = true;
+        _timer.Enabled = true;
+    }
 
+    private void UpdateCountdown(object sender, ElapsedEventArgs e)
+    {
+        if (_timeRemaining > 0)
+        {
+            _timeRemaining--;
+        }
+        else
+        {
+            StopTimer();
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void StopTimer()
+    {
+        _timer.Stop();
+        _timer.Dispose();
+        _isResendDisabled = false;
+    }
+    
+    public void Dispose()
+    {
+        StopTimer();
+    }
 
 
 

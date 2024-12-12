@@ -40,13 +40,13 @@ namespace ShortLinkGenerator.Controllers
                     Id = Guid.NewGuid().ToString(),
                     UserName = request.Mobile,
                     SecurityCode = code,
-                    SecurityCodeExpire = DateTime.Now.AddMinutes(4)
+                    SecurityCodeExpire = DateTime.Now.AddMinutes(1)
                 });
             }
             else
             {
                 user.SecurityCode = code;
-                user.SecurityCodeExpire = DateTime.Now.AddMinutes(4);
+                user.SecurityCodeExpire = DateTime.Now.AddMinutes(1);
                 await _userManager.UpdateAsync(user);
             }
 
