@@ -23,34 +23,47 @@ namespace ShortLinkGenerator.Controllers
             _userManager = userManager;
             _accountService = accountService;
         }
+        [Route("GetTest")]
+        [HttpGet]
+        public IActionResult GetTest()
+        {
+            return Ok("test");
+        }
 
         [Route("SignIn")]
         [HttpPost]
         public async Task<IActionResult> SignIn([FromBody] SignInDto request)
         {
-            if (!ModelState.IsValid) { return BadRequest(ModelState); }
-
-            var user = await _userManager.FindByNameAsync(request.Mobile);
-            var code = Extensions.GenerateSecurityCode();
-
-            if (user is null)
+            try
             {
-                await _userManager.CreateAsync(new ApplicationUser()
+                if (!ModelState.IsValid) { return BadRequest(ModelState); }
+
+                var user = await _userManager.FindByNameAsync(request.Mobile);
+                var code = Extensions.GenerateSecurityCode();
+
+                if (user is null)
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    UserName = request.Mobile,
-                    SecurityCode = code,
-                    SecurityCodeExpire = DateTime.Now.AddMinutes(1)
-                });
-            }
-            else
-            {
-                user.SecurityCode = code;
-                user.SecurityCodeExpire = DateTime.Now.AddMinutes(1);
-                await _userManager.UpdateAsync(user);
-            }
+                    await _userManager.CreateAsync(new ApplicationUser()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        UserName = request.Mobile,
+                        SecurityCode = code,
+                        SecurityCodeExpire = DateTime.Now.AddMinutes(1)
+                    });
+                }
+                else
+                {
+                    user.SecurityCode = code;
+                    user.SecurityCodeExpire = DateTime.Now.AddMinutes(1);
+                    await _userManager.UpdateAsync(user);
+                }
 
-            return Ok(new ApiOkResponse($"Security Code Send ! {code}"));
+                return Ok(new ApiOkResponse($"Security Code Send ! {code}"));
+            }
+            catch (Exception err)
+            {
+                return BadRequest(err.Message + err.InnerException.Message);
+            }
         }
 
         [Route("Verify")]
