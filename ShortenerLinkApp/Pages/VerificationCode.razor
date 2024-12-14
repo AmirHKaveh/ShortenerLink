@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject OTPSharedDataService SharedDataService
 @inject ISnackbarService SnackbarService
+@inject ILocalStorageService LocalStorage;
 @layout EmptyLayout;
 <PageTitle>Verification Code</PageTitle>
 <link href="/css/otp.css" rel="stylesheet" />
@@ -107,9 +108,10 @@
         if (response.IsSuccessStatusCode)
         {
             var loginResponse = JsonSerializer.Deserialize<LoginResponse>(response.Content.ReadAsStringAsync().Result);
+            await LocalStorage.SetItemAsStringAsync("token", loginResponse.token);
             SnackbarService.Add("Login successfully.", Severity.Success);
             model = new OTPViewModel(); // Reset the form
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/linkGenerator");
         }
         else
         {

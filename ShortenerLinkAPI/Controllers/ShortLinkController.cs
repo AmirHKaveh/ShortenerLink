@@ -32,37 +32,45 @@ namespace ShortLinkGenerator.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateShortLink(ShortLinkRequestDto request)
         {
-            var userClaim = await _accountService.GetUserFromClaim(claimsPrincipal: User);
-            var thisUser = await _userManager.FindByNameAsync(userClaim.Username);
+            try
+            {
+                var userClaim = await _accountService.GetUserFromClaim(claimsPrincipal: User);
+                var thisUser = await _userManager.FindByNameAsync(userClaim.Username);
 
-            if (thisUser is null)
-            {
-                return Unauthorized();
-            }
-
-            string decodedUrl = WebUtility.UrlDecode(request.Url);
-            if (await _context.Links.AnyAsync(x => x.OriginalUrl == decodedUrl))
-            {
-                return BadRequest("لینک شما قبلا ساخته شده است !");
-            }
-            else
-            {
-                var key = Extensions.GenerateLinkShortKey();
-                while (await _context.Links.AnyAsync(x => x.Key == key))
+                if (thisUser is null)
                 {
-                    key = Extensions.GenerateLinkShortKey();
+                    return Unauthorized();
                 }
-                var url = $"{Request.Scheme}://{Request.Host}/{key}";
-                await _context.Links.AddAsync(new Link()
+
+                string decodedUrl = WebUtility.UrlDecode(request.Url);
+                if (await _context.Links.AnyAsync(x => x.OriginalUrl == decodedUrl))
                 {
-                    OriginalUrl = decodedUrl,
-                    Url = url,
-                    Key = key,
-                    UserId = thisUser.Id,
-                    CreateDate = DateTime.Now
-                });
-                await _context.SaveChangesAsync();
-                return Ok("لینک شما با موفقیت ساخته شد");
+                    return BadRequest(new ApiResponse(400, "Your link has already been created!"));
+                }
+                else
+                {
+                    var key = Extensions.GenerateLinkShortKey();
+                    while (await _context.Links.AnyAsync(x => x.Key == key))
+                    {
+                        key = Extensions.GenerateLinkShortKey();
+                    }
+                    var url = $"{Request.Scheme}://{Request.Host}/{key}";
+                    await _context.Links.AddAsync(new Link()
+                    {
+                        OriginalUrl = decodedUrl,
+                        Url = url,
+                        Key = key,
+                        UserId = thisUser.Id,
+                        CreateDate = DateTime.Now
+                    });
+                    await _context.SaveChangesAsync();
+                    return Ok(new ApiOkResponse("Your link was created successfully."));
+                }
+            }
+            catch (Exception err)
+            {
+
+                throw;
             }
 
         }

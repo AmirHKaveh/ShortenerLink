@@ -1,3 +1,5 @@
+using Blazored.LocalStorage;
+
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -13,6 +15,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddMudServices();
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddSingleton<OTPSharedDataService>();
 builder.Services.AddSingleton<ISnackbarService, ToastService>();
 builder.Services.AddSingleton<ISnackbar,SnackbarService>();

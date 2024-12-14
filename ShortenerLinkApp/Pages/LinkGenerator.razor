@@ -1,6 +1,7 @@
 ﻿@page "/linkGenerator"
 @inject HttpClient Http
 @inject ISnackbarService SnackbarService
+@inject ILocalStorageService LocalStorage;
 @layout EmptyLayout;
 <PageTitle>LinkGenerator</PageTitle>
 
@@ -61,18 +62,20 @@
         _processing = true;
         var apiUrl = $"{Const.ApiBaseUrl}/shortLink/createShortLink";
 
+        var token =await LocalStorage.GetItemAsStringAsync("token");
+        Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         var response = await Http.PostAsJsonAsync(apiUrl, model);
-        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
 
         _processing = false;
         if (response.IsSuccessStatusCode)
         {
-            SnackbarService.Add($"Your link was created successfully..", Severity.Success);
+            SnackbarService.Add($"Your link was created successfully.", Severity.Success);
             model = new ShortLinkRequestDto(); // Reset the form
         }
         else
         {
-            SnackbarService.Add("An error has occurred.", Severity.Error);
+            var loginResponse = JsonSerializer.Deserialize<ApiResponseViewModel>(response.Content.ReadAsStringAsync().Result);
+            SnackbarService.Add(loginResponse.message, Severity.Error);
         }
     }
 }
