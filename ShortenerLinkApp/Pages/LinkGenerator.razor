@@ -1,4 +1,5 @@
 ﻿@page "/linkGenerator"
+@using Blazor.QrCodeGen
 @inject HttpClient Http
 @inject ISnackbarService SnackbarService
 @inject ILocalStorageService LocalStorage;
@@ -49,8 +50,13 @@
                                         <strong>@linkToCopy</strong>
                                     </p>
 
-                                    <MudButton @onclick="CopyToClipboard" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.CopyAll" IconColor="Color.Secondary" Size="Size.Large">Copy</MudButton>
+                                    <MudButton @onclick="CopyToClipboard" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.CopyAll" IconColor="Color.Secondary" Size="Size.Large" style="margin-bottom:20px">Copy</MudButton>
+
+                                    <QrCode CanvasId="AnyId" Text="@linkToCopy" Options="_options" />
                                 }
+
+                                
+
 
                             </div>
                         </div>
@@ -95,7 +101,7 @@
         {
             var shortLinkResponse = JsonSerializer.Deserialize<ShortLinkResponseViewModel>(response.Content.ReadAsStringAsync().Result);
             SnackbarService.Add(shortLinkResponse.message, Severity.Success);
-          
+
             linkToCopy = shortLinkResponse.url;
             model = new ShortLinkRequestViewModel(); // Reset the form
         }
@@ -122,4 +128,6 @@
             SnackbarService.Add($"Failed to copy link!", Severity.Warning);
         }
     }
+
+    private QrCodeOptions _options = new QrCodeOptions() { Size = 180 };
 }
