@@ -9,6 +9,7 @@ using ShortLinkGenerator.Models;
 using ShortLinkGenerator.Services;
 using ShortLinkGenerator.ViewModels;
 
+using System;
 using System.Net;
 
 namespace ShortLinkGenerator.Controllers
@@ -43,9 +44,21 @@ namespace ShortLinkGenerator.Controllers
                 }
 
                 string decodedUrl = WebUtility.UrlDecode(request.Url);
-                if (await _context.Links.AnyAsync(x => x.OriginalUrl == decodedUrl))
+
+
+                var link = await _context.Links.FirstOrDefaultAsync(x => x.OriginalUrl == decodedUrl);
+               
+
+                if (link is not null)
                 {
-                    return BadRequest(new ApiResponse(400, "Your link has already been created!"));
+                    var response = new ShortLinkResponseDto()
+                    {
+                        Status=false,
+                        Message = "Your link has already been created!",
+                        Url = link.Url
+                    };
+
+                    return Ok(response);
                 }
                 else
                 {
@@ -55,6 +68,7 @@ namespace ShortLinkGenerator.Controllers
                         key = Extensions.GenerateLinkShortKey();
                     }
                     var url = $"{Request.Scheme}://{Request.Host}/{key}";
+
                     await _context.Links.AddAsync(new Link()
                     {
                         OriginalUrl = decodedUrl,
@@ -64,7 +78,15 @@ namespace ShortLinkGenerator.Controllers
                         CreateDate = DateTime.Now
                     });
                     await _context.SaveChangesAsync();
-                    return Ok(new ApiOkResponse("Your link was created successfully."));
+
+                    var response = new ShortLinkResponseDto()
+                    {
+                        Status=true,
+                        Message = "Your link was created successfully.",
+                        Url = url
+                    };
+
+                    return Ok(response);
                 }
             }
             catch (Exception err)
@@ -73,6 +95,18 @@ namespace ShortLinkGenerator.Controllers
                 throw;
             }
 
+        }
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("/{shortKey}")]
+        public async Task<IActionResult> RedirectShortLink(string shortKey)
+        {
+            var link = await _context.Links.FirstOrDefaultAsync(x => x.Key == shortKey);
+            if (link is null)
+            {
+                return NotFound();
+            }
+            return Redirect(link.OriginalUrl);
         }
     }
 }

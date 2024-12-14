@@ -2,6 +2,7 @@
 @inject HttpClient Http
 @inject ISnackbarService SnackbarService
 @inject ILocalStorageService LocalStorage;
+@inject IJSRuntime JSRuntime
 @layout EmptyLayout;
 <PageTitle>LinkGenerator</PageTitle>
 
@@ -42,6 +43,15 @@
                                     </div>
                                 </EditForm>
 
+                                @if (!string.IsNullOrEmpty(linkToCopy))
+                                {
+                                    <p>
+                                        <strong>@linkToCopy</strong>
+                                    </p>
+
+                                    <MudButton @onclick="CopyToClipboard" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.CopyAll" IconColor="Color.Secondary" Size="Size.Large">Copy</MudButton>
+                                }
+
                             </div>
                         </div>
                     </div>
@@ -51,31 +61,65 @@
     </div>
 </section>
 
+<script>
+    async function copyTextToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            console.log("Copied: " + text);
+            return true;
+        } catch (err) {
+            console.error("Could not copy text: ", err);
+            return false;
+        }
+    }
+</script>
+
 
 @code {
 
-    private ShortLinkRequestDto model = new ShortLinkRequestDto();
+    private ShortLinkRequestViewModel model = new ShortLinkRequestViewModel();
     private bool _processing = false;
+    private string linkToCopy = "";
 
     private async Task GenerateLink()
     {
         _processing = true;
         var apiUrl = $"{Const.ApiBaseUrl}/shortLink/createShortLink";
 
-        var token =await LocalStorage.GetItemAsStringAsync("token");
+        var token = await LocalStorage.GetItemAsStringAsync("token");
         Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         var response = await Http.PostAsJsonAsync(apiUrl, model);
-
+        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
         _processing = false;
         if (response.IsSuccessStatusCode)
         {
-            SnackbarService.Add($"Your link was created successfully.", Severity.Success);
-            model = new ShortLinkRequestDto(); // Reset the form
+            var shortLinkResponse = JsonSerializer.Deserialize<ShortLinkResponseViewModel>(response.Content.ReadAsStringAsync().Result);
+            SnackbarService.Add(shortLinkResponse.message, Severity.Success);
+          
+            linkToCopy = shortLinkResponse.url;
+            model = new ShortLinkRequestViewModel(); // Reset the form
         }
         else
         {
-            var loginResponse = JsonSerializer.Deserialize<ApiResponseViewModel>(response.Content.ReadAsStringAsync().Result);
-            SnackbarService.Add(loginResponse.message, Severity.Error);
+
+            var shortLinkResponse = JsonSerializer.Deserialize<ApiResponseViewModel>(response.Content.ReadAsStringAsync().Result);
+            SnackbarService.Add(shortLinkResponse.message, Severity.Error);
+        }
+    }
+
+
+
+    private async Task CopyToClipboard()
+    {
+        bool success = await JSRuntime.InvokeAsync<bool>("copyTextToClipboard", linkToCopy);
+
+        if (success)
+        {
+            SnackbarService.Add($"Link copied to clipboard!", Severity.Success);
+        }
+        else
+        {
+            SnackbarService.Add($"Failed to copy link!", Severity.Warning);
         }
     }
 }
