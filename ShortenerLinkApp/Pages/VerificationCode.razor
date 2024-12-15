@@ -15,53 +15,45 @@
             <div class="col col-xl-10">
                 <div class="card shadow p-3 mb-5 bg-white card-rounded">
                     <div class="row g-0">
-                        <div class="col-md-8 col-lg-6 d-none d-md-block">
+                        <div class="col-md-8 col-lg-6 col-sm-12">
                             <img src="/images/login-2.jpg"
                                  alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;" />
                         </div>
-                        <div class="col-md-4 col-lg-6 d-flex align-items-center">
-                            <div class="card-body p-4 p-lg-5 text-black">
+                        <div class="col-md-4 col-lg-6 col-sm-12 d-flex align-items-center">
+                            <div class="card-body p-4 p-lg-5 text-black text-center">
 
                                 <EditForm Model="OTPViewModel" OnSubmit="SubmitOTP">
                                     <DataAnnotationsValidator />
 
-                                    <div class="row justify-content-center">
-                                        <div class="col-12 col-md-6 col-lg-4" style="min-width: 500px;">
-                                            <div class="card bg-white mb-5 mt-5 border-0" style="box-shadow: 0 12px 15px rgba(0, 0, 0, 0.02);">
-                                                <div class="card-body p-5 text-center">
-                                                    <h4>Verify</h4>
-                                                    <p>Your code was sent to you via SMS</p>
+                                    <h4>Verify</h4>
+                                    <p>Your code was sent to you via SMS</p>
 
-                                                    <div class="otp-field mb-4">
-                                                        <input type="number" @bind="@otp1" />
-                                                        <input type="number" disabled @bind="@otp2" />
-                                                        <input type="number" disabled @bind="@otp3" />
-                                                        <input type="number" disabled @bind="@otp4" />
-                                                        <input type="number" disabled @bind="@otp5" />
-                                                    </div>
-
-                                                    <MudButton Disabled="@_processing" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mb-3" id="btnVerify">
-                                                        @if (_processing)
-                                                        {
-                                                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                                                            <MudText Class="ms-2">Waiting...</MudText>
-                                                        }
-                                                        else
-                                                        {
-                                                            <MudText>Verify</MudText>
-                                                        }
-                                                    </MudButton>
-
-
-
-                                                    <p>OTP expires in: <strong class="text-danger" id="timer">@_timeRemaining</strong> seconds</p>
-                                                    <p class="resend text-muted mb-0">
-                                                        Didn't receive code? <button @onclick="ResendOTP" type="button" disabled="@_isResendDisabled" class="btn btn-outline-success" style="border:0">Resend</button>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="otp-field mb-4">
+                                        <input type="number" @bind="@otp1" />
+                                        <input type="number" disabled @bind="@otp2" />
+                                        <input type="number" disabled @bind="@otp3" />
+                                        <input type="number" disabled @bind="@otp4" />
+                                        <input type="number" disabled @bind="@otp5" />
                                     </div>
+
+                                    <MudButton Disabled="@_processing" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mb-3" id="btnVerify">
+                                        @if (_processing)
+                                        {
+                                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                            <MudText Class="ms-2">Waiting...</MudText>
+                                        }
+                                        else
+                                        {
+                                            <MudText>Verify</MudText>
+                                        }
+                                    </MudButton>
+
+
+
+                                    <p>OTP expires in: <strong class="text-danger" id="timer">@_timeRemaining</strong> seconds</p>
+                                    <p class="resend text-muted mb-0">
+                                        Didn't receive code? <button @onclick="ResendOTP" type="button" disabled="@_isResendDisabled" class="btn btn-outline-success" style="border:0">Resend</button>
+                                    </p>
                                 </EditForm>
 
                             </div>
@@ -116,6 +108,7 @@
         else
         {
             var loginResponse = JsonSerializer.Deserialize<ApiResponseViewModel>(response.Content.ReadAsStringAsync().Result);
+
             SnackbarService.Add(loginResponse.message, Severity.Error);
         }
     }
